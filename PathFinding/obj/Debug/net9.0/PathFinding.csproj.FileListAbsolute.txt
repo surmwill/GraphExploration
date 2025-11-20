@@ -1,0 +1,15 @@
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\bin\Debug\net9.0\PathFinding.exe
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\bin\Debug\net9.0\PathFinding.deps.json
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\bin\Debug\net9.0\PathFinding.runtimeconfig.json
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\bin\Debug\net9.0\PathFinding.dll
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\bin\Debug\net9.0\PathFinding.pdb
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.AssemblyInfoInputs.cache
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.AssemblyInfo.cs
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.csproj.CoreCompileInputs.cache
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.sourcelink.json
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.dll
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\refint\PathFinding.dll
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.pdb
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\PathFinding.genruntimeconfig.cache
+C:\Users\willi\RiderProjects\PathFinding\PathFinding\obj\Debug\net9.0\ref\PathFinding.dll

@@ -10,7 +10,7 @@ public class GridPathFinder
     const char OriginOnGrid = 'O';
     const char ClearOnGrid = '\0';
 
-    public struct NavigationInstructionSet
+    public class NavigationInstructionSet
     {
         public List<NavigationInstruction> OriginToTarget { get; }
         
@@ -78,11 +78,11 @@ public class GridPathFinder
         return point.x >= 0 && point.x < dimensions.width && point.y >= 0 && point.y < dimensions.height;
     }
 
-    public NavigationInstructionSet GetPathTo((int x, int y) origin, (int x, int y) target, (int width, int height) gridDimensions, IEnumerable<(int x, int y)> obstacles)
+    public NavigationInstructionSet? GetPathTo((int x, int y) origin, (int x, int y) target, (int width, int height) gridDimensions, IEnumerable<(int x, int y)> obstacles)
     {
         if (!IsPointInGrid(target, gridDimensions))
         {
-            return default;
+            return null;
         }
         
         char[,] grid = CreateOrClearGrid(gridDimensions.width, gridDimensions.height);
@@ -123,7 +123,7 @@ public class GridPathFinder
 
         if (prevDirectionFromTarget == ClearOnGrid)
         {
-            return default;
+            return null;
         }
 
         int totalMagnitude = 0;
