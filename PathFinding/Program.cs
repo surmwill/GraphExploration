@@ -6,8 +6,5 @@ List<char[,]> grids = GridParser.ParseGridsFromFile(TestGridPathsFileName);
 
 foreach (char[,] grid in grids)
 {
-    GridParser.PrintGrid(grid); 
-    Console.WriteLine();
+    Console.WriteLine(GridParser.GridToString(grid));
 }
-
-Console.WriteLine(AppContext.BaseDirectory);

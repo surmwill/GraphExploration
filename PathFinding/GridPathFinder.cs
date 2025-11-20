@@ -1,6 +1,4 @@
-﻿using static PathFinding.GridPathFinder.NavigationInstruction;
-
-namespace PathFinding;
+﻿namespace PathFinding;
 
 public class GridPathFinder
 {
@@ -9,45 +7,6 @@ public class GridPathFinder
     private const char ObstacleOnGrid = '*';
     const char OriginOnGrid = 'O';
     const char ClearOnGrid = '\0';
-
-    public class NavigationInstructionSet
-    {
-        public List<NavigationInstruction> OriginToTarget { get; }
-        
-        public int TotalMagnitude { get; }
-
-        public NavigationInstructionSet(List<NavigationInstruction> originToTarget, int totalMagnitude)
-        {
-            OriginToTarget = originToTarget;
-            TotalMagnitude = totalMagnitude;
-        }
-    }
-    
-    public struct NavigationInstruction
-    {
-        public enum NavigationDirection
-        {
-            Left = 0,
-            Right = 1,
-            Up = 2,
-            Down = 3,
-        }   
-        
-        public NavigationDirection Direction { get; }
-        
-        public int Magnitude { get; private set; }
-
-        public void IncrementMagnitude(int increment = 1)
-        {
-            Magnitude += increment;
-        }
-
-        public NavigationInstruction(NavigationDirection direction, int magnitude = 1)
-        {
-            Direction = direction;
-            Magnitude = magnitude;
-        }
-    }
 
     private char[,] CreateOrClearGrid(int width, int height)
     {
@@ -150,9 +109,9 @@ public class GridPathFinder
                 ReverseAndAddToPath((currentPosition.x + 1, currentPosition.y), originToTarget, ref totalMagnitude, grid);
                 NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
                 
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationDirection.Right)
+                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Right)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationDirection.Right));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Right));
                 }
                 else
                 {
@@ -167,9 +126,9 @@ public class GridPathFinder
                 ReverseAndAddToPath((currentPosition.x, currentPosition.y - 1), originToTarget, ref totalMagnitude, grid);
                 NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
                 
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationDirection.Down)
+                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Down)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationDirection.Down));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Down));
                 }
                 else
                 {
@@ -184,9 +143,9 @@ public class GridPathFinder
                 ReverseAndAddToPath((currentPosition.x - 1, currentPosition.y), originToTarget, ref totalMagnitude, grid);
                 NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
                 
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationDirection.Left)
+                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Left)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationDirection.Left));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Left));
                 }
                 else
                 {
@@ -201,9 +160,9 @@ public class GridPathFinder
                 ReverseAndAddToPath((currentPosition.x, currentPosition.y + 1), originToTarget, ref totalMagnitude, grid);
                 NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
                 
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationDirection.Up)
+                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Up)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationDirection.Up));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Up));
                 }
                 else
                 {

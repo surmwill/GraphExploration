@@ -1,4 +1,6 @@
-﻿namespace PathFinding;
+﻿using System.Text;
+
+namespace PathFinding;
 
 public static class GridParser
 {
@@ -28,16 +30,20 @@ public static class GridParser
         return grids;
     }
 
-    public static void PrintGrid(char[,] grid)
+    public static string GridToString(char[,] grid)
     {
+        StringBuilder sb = new StringBuilder();
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                Console.Write(grid[x, y]);
+                sb.Append(grid[x, y]);
             }
-            Console.WriteLine();
+
+            sb.AppendLine();
         }
+
+        return sb.ToString();
     }
 
     public static char[,] ParseGrid(List<string> lines)
