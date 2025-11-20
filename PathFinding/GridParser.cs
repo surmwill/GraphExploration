@@ -30,20 +30,20 @@ public static class GridParser
         return grids;
     }
 
-    public static string GridToString(char[,] grid)
+    public static void PrintGrid(char[,] grid)
     {
-        StringBuilder sb = new StringBuilder();
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
             {
-                sb.Append(grid[x, y]);
+                char point = grid[x, y];
+                Console.Write(point == GridPoints.Clear ? '.' : point); // Null doesn't show up
             }
-
-            sb.AppendLine();
+            
+            Console.WriteLine();
         }
-
-        return sb.ToString();
+        
+        Console.WriteLine();
     }
 
     public static char[,] ParseGrid(List<string> lines)

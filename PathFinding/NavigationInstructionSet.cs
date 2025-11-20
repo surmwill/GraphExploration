@@ -4,25 +4,33 @@ namespace PathFinding;
 
 public class NavigationInstructionSet
 {
-    public List<NavigationInstruction> OriginToTarget { get; }
+    public (int row, int col) Origin { get; }
+    
+    public (int row, int col) Target { get; }
+    
+    public List<NavigationInstruction> PathToTarget { get; }
         
     public int TotalMagnitude { get; }
 
-    public NavigationInstructionSet(List<NavigationInstruction> originToTarget, int totalMagnitude)
+    public NavigationInstructionSet((int row, int col) origin, (int row, int col) target, List<NavigationInstruction> pathToTarget) :
+        this(origin, target, pathToTarget, pathToTarget.Sum(instruction => instruction.Magnitude)) { }
+
+    public NavigationInstructionSet((int row, int col) origin, (int row, int col) target, List<NavigationInstruction> pathToTarget, int totalMagnitude)
     {
-        OriginToTarget = originToTarget;
+        Origin = origin;
+        Target = target;
+        
+        PathToTarget = pathToTarget;
         TotalMagnitude = totalMagnitude;
     }
 
-    public string GetInstructionsString()
+    public void PrintInstructions()
     {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < OriginToTarget.Count; i++)
+        for (int i = 0; i < PathToTarget.Count; i++)
         {
-            NavigationInstruction navigationInstruction = OriginToTarget[i];
-            sb.AppendLine($"{i}: {navigationInstruction.Direction},{navigationInstruction.Magnitude}");
+            NavigationInstruction navigationInstruction = PathToTarget[i];
+            Console.WriteLine($"{i}: {navigationInstruction.Direction},{navigationInstruction.Magnitude}");
         }
-
-        return sb.ToString();
+        Console.WriteLine();
     }
 }

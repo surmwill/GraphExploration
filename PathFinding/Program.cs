@@ -1,10 +1,3 @@
 ﻿using PathFinding;
 
-const string TestGridPathsFileName = "TestGridPaths.txt";
-
-List<char[,]> grids = GridParser.ParseGridsFromFile(TestGridPathsFileName);
-
-foreach (char[,] grid in grids)
-{
-    Console.WriteLine(GridParser.GridToString(grid));
-}
+GridPathTester.TestPathTo();

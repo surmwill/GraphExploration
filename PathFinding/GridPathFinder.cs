@@ -1,19 +1,15 @@
 ﻿namespace PathFinding;
 
-public class GridPathFinder
+public static class GridPathFinder
 {
-    private readonly Dictionary<(int width, int height), char[,]> _gridCache = new();
+    private static readonly Dictionary<(int numRows, int numCols), char[,]> GridCache = new();
 
-    private const char ObstacleOnGrid = '*';
-    const char OriginOnGrid = 'O';
-    const char ClearOnGrid = '\0';
-
-    private char[,] CreateOrClearGrid(int width, int height)
+    private static char[,] CreateOrClearGrid(int numRows, int numCols)
     {
-        if (!_gridCache.TryGetValue((width, height), out char[,]? grid))
+        if (!GridCache.TryGetValue((numRows, numCols), out char[,]? grid))
         {
-            grid = new char[width, height];
-            _gridCache[(width, height)] = grid;
+            grid = new char[numRows, numCols];
+            GridCache[(numRows, numCols)] = grid;
         }
         else
         {
@@ -23,64 +19,76 @@ public class GridPathFinder
         return grid;
     }
 
-    private void AddObstaclesToGrid(char[,] grid, IEnumerable<(int x, int y)> obstacles)
+    private static void AddObstaclesToGrid(char[,] grid, IEnumerable<(int row, int col)> obstacles)
     {
-        (int width, int height) gridDimensions = (grid.GetLength(0), grid.GetLength(1));
-        foreach ((int x, int y) in obstacles.Where(obstacle => IsPointInGrid(obstacle, gridDimensions)))
+        (int numRows, int numCols) gridDimensions = (grid.GetLength(0), grid.GetLength(1));
+        foreach ((int row, int col) in obstacles.Where(obstacle => IsPointInGrid(obstacle, gridDimensions)))
         {
-            grid[x, y] = ObstacleOnGrid;
+            grid[row, col] = GridPoints.Obstacle;
         }
     }
 
-    private bool IsPointInGrid((int x, int y) point, (int width, int height) dimensions)
+    private static bool IsPointInGrid((int row, int col) point, (int numRows, int numCols) dimensions)
     {
-        return point.x >= 0 && point.x < dimensions.width && point.y >= 0 && point.y < dimensions.height;
+        return point.row >= 0 && point.row < dimensions.numRows && point.col >= 0 && point.col < dimensions.numCols;
     }
 
-    public NavigationInstructionSet? GetPathTo((int x, int y) origin, (int x, int y) target, (int width, int height) gridDimensions, IEnumerable<(int x, int y)> obstacles)
+    public static NavigationInstructionSet? GetPathTo((int row, int col) origin, (int row, int col) target, (int numRows, int numCols) gridDimensions, IEnumerable<(int row, int col)> obstacles)
     {
         if (!IsPointInGrid(target, gridDimensions))
         {
             return null;
         }
         
-        char[,] grid = CreateOrClearGrid(gridDimensions.width, gridDimensions.height);
+        if (origin == target)
+        {
+            return new NavigationInstructionSet(origin, target, new List<NavigationInstruction>());
+        }
+        
+        char[,] grid = CreateOrClearGrid(gridDimensions.numRows, gridDimensions.numCols);
         AddObstaclesToGrid(grid, obstacles);
         
-        Queue<(int x, int y)> nextPositions = new Queue<(int x, int y)>();
+        Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
         nextPositions.Enqueue(origin);
         
-        grid[origin.x, origin.y] = OriginOnGrid;
-        char prevDirectionFromTarget = ClearOnGrid;
+        grid[origin.row, origin.col] = GridPoints.Origin;
+        bool found = false;
         
         while (nextPositions.Any())
         {
-            (int x, int y) currentPosition = nextPositions.Dequeue();
-            if (!IsPointInGrid(currentPosition, gridDimensions) || grid[currentPosition.x, currentPosition.y] != ClearOnGrid)
-            {
-                continue;
-            }
-
+            (int row, int col) currentPosition = nextPositions.Dequeue();
             if (currentPosition == target)
             {
-                prevDirectionFromTarget = grid[currentPosition.x, currentPosition.y];
+                found = true;
                 break;
             }
+            
+            if (currentPosition.col > 0 && !IsOccupiedPoint(grid[currentPosition.row, currentPosition.col - 1]))
+            {
+                grid[currentPosition.row, currentPosition.col - 1] = 'R';
+                nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1));   
+            }
 
-            grid[currentPosition.x - 1, currentPosition.y] = 'R';
-            nextPositions.Enqueue((currentPosition.x - 1, currentPosition.y));
+            if (currentPosition.row < gridDimensions.numRows - 1 && !IsOccupiedPoint(grid[currentPosition.row + 1, currentPosition.col]))
+            {
+                grid[currentPosition.row + 1, currentPosition.col] = 'U';
+                nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col));   
+            }
 
-            grid[currentPosition.x, currentPosition.y + 1] = 'D';
-            nextPositions.Enqueue((currentPosition.x, currentPosition.y + 1));
+            if (currentPosition.col < gridDimensions.numCols - 1 && !IsOccupiedPoint((grid[currentPosition.row, currentPosition.col + 1])))
+            {
+                grid[currentPosition.row, currentPosition.col + 1] = 'L';
+                nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1));   
+            }
 
-            grid[currentPosition.x + 1, currentPosition.y] = 'L';
-            nextPositions.Enqueue((currentPosition.x + 1, currentPosition.y));
-
-            grid[currentPosition.x, currentPosition.y - 1] = 'U';
-            nextPositions.Enqueue((currentPosition.x, currentPosition.y - 1));
+            if (currentPosition.row > 0 && !IsOccupiedPoint(grid[currentPosition.row - 1, currentPosition.col]))
+            {
+                grid[currentPosition.row - 1, currentPosition.col] = 'D';
+                nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col));   
+            }
         }
 
-        if (prevDirectionFromTarget == ClearOnGrid)
+        if (!found)
         {
             return null;
         }
@@ -89,15 +97,21 @@ public class GridPathFinder
         List<NavigationInstruction> navigationInstructions = new List<NavigationInstruction>();
         ReverseAndAddToPath(target, navigationInstructions, ref totalMagnitude, grid);
 
-        return new NavigationInstructionSet(navigationInstructions, totalMagnitude);
+        return new NavigationInstructionSet(origin, target, navigationInstructions, totalMagnitude);
+
+        bool IsOccupiedPoint(char gridPoint)
+        {
+            return gridPoint == GridPoints.Obstacle || gridPoint == GridPoints.Origin ||
+                   gridPoint == 'R' || gridPoint == 'L' || gridPoint == 'U' || gridPoint == 'D';
+        }
     }
 
-    private void ReverseAndAddToPath((int x, int y) currentPosition, List<NavigationInstruction> originToTarget, ref int totalMagnitude, char[,] grid)
+    private static void ReverseAndAddToPath((int row, int col) currentPosition, List<NavigationInstruction> originToTarget, ref int totalMagnitude, char[,] grid)
     {
         totalMagnitude++;
         
-        char currentDirection = grid[currentPosition.x, currentPosition.y];
-        if (currentDirection == OriginOnGrid)
+        char currentDirection = grid[currentPosition.row, currentPosition.col];
+        if (currentDirection == GridPoints.Origin)
         {
             return;
         }
@@ -106,16 +120,16 @@ public class GridPathFinder
         {
             case 'R':
             {
-                ReverseAndAddToPath((currentPosition.x + 1, currentPosition.y), originToTarget, ref totalMagnitude, grid);
-                NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
-                
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Right)
+                ReverseAndAddToPath((currentPosition.row, currentPosition.col + 1), originToTarget, ref totalMagnitude, grid);
+                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Left)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Right));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Left));
                 }
                 else
                 {
-                    originToTarget.Last().IncrementMagnitude();
+                    NavigationInstruction last = originToTarget.Last();
+                    last.IncrementMagnitude();
+                    originToTarget[^1] = last;
                 }
 
                 break;
@@ -123,16 +137,16 @@ public class GridPathFinder
 
             case 'D':
             {
-                ReverseAndAddToPath((currentPosition.x, currentPosition.y - 1), originToTarget, ref totalMagnitude, grid);
-                NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
-                
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Down)
+                ReverseAndAddToPath((currentPosition.row + 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
+                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Up)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Down));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Up));
                 }
                 else
                 {
-                    originToTarget.Last().IncrementMagnitude();
+                    NavigationInstruction last = originToTarget.Last();
+                    last.IncrementMagnitude();
+                    originToTarget[^1] = last;
                 }
                 
                 break;
@@ -140,16 +154,16 @@ public class GridPathFinder
 
             case 'L':
             {
-                ReverseAndAddToPath((currentPosition.x - 1, currentPosition.y), originToTarget, ref totalMagnitude, grid);
-                NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
-                
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Left)
+                ReverseAndAddToPath((currentPosition.row, currentPosition.col - 1), originToTarget, ref totalMagnitude, grid);
+                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Right)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Left));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Right));
                 }
                 else
                 {
-                    originToTarget.Last().IncrementMagnitude();
+                    NavigationInstruction last = originToTarget.Last();
+                    last.IncrementMagnitude();
+                    originToTarget[^1] = last;
                 }
                 
                 break;
@@ -157,16 +171,16 @@ public class GridPathFinder
 
             case 'U':
             {
-                ReverseAndAddToPath((currentPosition.x, currentPosition.y + 1), originToTarget, ref totalMagnitude, grid);
-                NavigationInstruction? lastInstruction = originToTarget.LastOrDefault();
-                
-                if (!lastInstruction.HasValue || lastInstruction.Value.Direction != NavigationInstruction.NavigationDirection.Up)
+                ReverseAndAddToPath((currentPosition.row - 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
+                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Down)
                 {
-                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Up));
+                    originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Down));
                 }
                 else
                 {
-                    originToTarget.Last().IncrementMagnitude();
+                    NavigationInstruction last = originToTarget.Last();
+                    last.IncrementMagnitude();
+                    originToTarget[^1] = last;
                 }
                 
                 break;   
