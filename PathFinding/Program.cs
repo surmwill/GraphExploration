@@ -1,5 +1,5 @@
 ﻿using GridPathFinding;
 
-GridPathToTester.TestPathsTo();
+// GridPathToTester.TestPathsTo();
 
-// GridPathFromTester.TestPathsFrom();
+GridPathFromTester.TestPathsFrom();

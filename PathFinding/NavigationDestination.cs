@@ -8,11 +8,11 @@ public struct NavigationDestination
     
     public int StepsRequired { get; }
     
-    private NavigationInstructionSet _pathTo;
+    private NavigationInstructionSet? _pathTo;
     
     private char[,] _solvedGrid;
 
-    private NavigationInstructionSet PathTo
+    public NavigationInstructionSet PathTo
     {
         get
         {
@@ -30,7 +30,10 @@ public struct NavigationDestination
     {
         Position = position;
         Origin = origin;
+        
         StepsRequired = stepsRequired;
+        
         _solvedGrid = solvedGrid;
+        _pathTo = null;
     }
 }

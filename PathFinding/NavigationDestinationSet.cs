@@ -2,15 +2,22 @@
 
 public class NavigationDestinationSet
 {
-    public NavigationDestination?[,] NavigationDestinations;
+    public (int row, int col) Origin { get; }
+    
+    public int MaxNumSteps { get; }
+    
+    public NavigationDestination?[,] DestinationMap;
     
     public List<NavigationDestination> ValidDestinations { get; }
 
     public bool HasValidDestination => ValidDestinations.Count > 0;
 
-    public NavigationDestinationSet(NavigationDestination?[,] navigationDestinations, List<NavigationDestination> validDestinations)
+    public NavigationDestinationSet((int row, int col) origin, int maxNumSteps, NavigationDestination?[,] destinationMap, List<NavigationDestination> validDestinations)
     {
-        NavigationDestinations = navigationDestinations;
+        Origin = origin;
+        MaxNumSteps = maxNumSteps;
+        
+        DestinationMap = destinationMap;
         ValidDestinations = validDestinations;
     }
 }

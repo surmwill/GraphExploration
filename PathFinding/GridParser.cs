@@ -1,19 +1,19 @@
-﻿using System.Text;
-
-namespace GridPathFinding;
+﻿namespace GridPathFinding;
 
 public static class GridParser
 {
-    public static List<char[,]> ParseGridsFromFile(string filePath)
+    public static List<char[,]> ParseGridsFromFile(string filePath, IEnumerable<char>? ignorePoints = null)
     {
-        List<char[,]> grids = new List<char[,]>();
+        HashSet<char> ignore = new HashSet<char>(ignorePoints ?? []);
         
+        List<char[,]> grids = new List<char[,]>();
         List<string> gridLines = new List<string>();
+        
         foreach (string line in File.ReadLines(filePath))
         {
             if (string.IsNullOrWhiteSpace(line))
             {
-                grids.Add(ParseGrid(gridLines));
+                grids.Add(ParseGrid(gridLines, ignore));
                 gridLines.Clear();
             }
             else
@@ -24,7 +24,7 @@ public static class GridParser
 
         if (gridLines.Count > 0)
         {
-            grids.Add(ParseGrid(gridLines));
+            grids.Add(ParseGrid(gridLines, ignore));
         }
 
         return grids;
@@ -37,7 +37,7 @@ public static class GridParser
             for (int y = 0; y < grid.GetLength(1); y++)
             {
                 char point = grid[x, y];
-                Console.Write(point == GridPoints.Clear ? '.' : point); // Null doesn't show up
+                Console.Write(point == GridPoints.Clear ? GridPoints.DEBUG_PRINT_PATH : point); // Null doesn't show up
             }
             
             Console.WriteLine();
@@ -45,8 +45,15 @@ public static class GridParser
         
         Console.WriteLine();
     }
+    
+    public static char[,] CopyGrid(char[,] grid)
+    {
+        char[,] copiedGrid = new char[grid.GetLength(0), grid.GetLength(1)];
+        Array.Copy(grid, copiedGrid, grid.Length);
+        return copiedGrid;
+    }
 
-    public static char[,] ParseGrid(List<string> lines)
+    private static char[,] ParseGrid(List<string> lines, HashSet<char>? ignorePoints = null)
     {
         (int gridNumRows, int gridNumCols) = (lines.Count, lines[0].Length);
         char[,] grid = new char[gridNumRows, gridNumCols];
@@ -56,7 +63,7 @@ public static class GridParser
             string line = lines[row];
             for (int col = 0; col < gridNumCols; col++)
             {
-                grid[row, col] = line[col];
+                grid[row, col] = ignorePoints != null && ignorePoints.Contains(line[col]) ? GridPoints.DEBUG_PRINT_CLEAR : line[col];
             }
         }
 

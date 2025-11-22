@@ -8,18 +8,18 @@ public class NavigationInstructionSet
     
     public List<NavigationInstruction> PathToTarget { get; }
         
-    public int TotalMagnitude { get; }
+    public int Magnitude { get; }
 
     public NavigationInstructionSet((int row, int col) origin, (int row, int col) target, List<NavigationInstruction> pathToTarget) :
         this(origin, target, pathToTarget, pathToTarget.Sum(instruction => instruction.Magnitude)) { }
 
-    public NavigationInstructionSet((int row, int col) origin, (int row, int col) target, List<NavigationInstruction> pathToTarget, int totalMagnitude)
+    public NavigationInstructionSet((int row, int col) origin, (int row, int col) target, List<NavigationInstruction> pathToTarget, int magnitude)
     {
         Origin = origin;
         Target = target;
         
         PathToTarget = pathToTarget;
-        TotalMagnitude = totalMagnitude;
+        this.Magnitude = magnitude;
     }
 
     public void PrintInstructions()

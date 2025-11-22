@@ -38,9 +38,9 @@ public static class GridPathToTester
         }
     }
 
-    private static char[,] DrawPathOnGrid(NavigationInstructionSet instructionSet, char[,] grid)
+    public static char[,] DrawPathOnGrid(NavigationInstructionSet instructionSet, char[,] grid)
     {
-        char[,] gridCopy = GridTestingUtilities.CopyGrid(grid);
+        char[,] gridCopy = GridParser.CopyGrid(grid);
         
         (int row, int col) currentPosition = instructionSet.Origin;
         foreach (NavigationInstruction navigationInstruction in instructionSet.PathToTarget)

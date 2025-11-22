@@ -13,6 +13,9 @@ public static class GridPoints
     public const char DIR_BACK_TO_ORIGIN_DOWN = 'B';
 
     public const char DEBUG_PRINT_PATH = '.';
+    
+    // Null doesn't print
+    public const char DEBUG_PRINT_CLEAR = 'O';
 
     public static bool IsDirectionBackToOrigin(char gridPoint)
     {

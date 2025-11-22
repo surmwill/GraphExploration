@@ -84,7 +84,6 @@ public static class GridPathFinder
         while (nextPositions.Count > 0)
         {
             (int row, int col, int numSteps) currentPosition = nextPositions.Dequeue();
-            Console.WriteLine(currentPosition.numSteps);
             
             if (currentPosition.col > 0 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]))
             {
@@ -92,14 +91,9 @@ public static class GridPathFinder
                 {
                     modifiedNumSteps = 1;
                 }
-                else
-                {
-                    Console.WriteLine("IS MOD STEP " + solvedGrid[currentPosition.row, currentPosition.col - 1]);
-                }
 
                 if (currentPosition.numSteps + modifiedNumSteps <= maxNumSteps)
                 {
-                    Console.WriteLine("ADDED " + currentPosition.numSteps + " " + modifiedNumSteps);
                     solvedGrid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
                     navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col - 1), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
                     navigationDestinations[currentPosition.row, currentPosition.col - 1] = navigationDestination;
@@ -110,7 +104,6 @@ public static class GridPathFinder
 
             if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]))
             { 
-                Console.WriteLine("D");
                 if (!GridPoints.IsModificationStep(solvedGrid[currentPosition.row + 1, currentPosition.col], out int modifiedNumSteps))
                 {
                     modifiedNumSteps = 1;
@@ -161,7 +154,7 @@ public static class GridPathFinder
             }
         }
 
-        return new NavigationDestinationSet(navigationDestinations, validNavigationDestinations);
+        return new NavigationDestinationSet(serializedGrid.Origin, maxNumSteps, navigationDestinations, validNavigationDestinations);
     }
 
     public static NavigationInstructionSet? GetPathTo(SerializedGrid serializedGrid)
