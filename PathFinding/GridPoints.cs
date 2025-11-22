@@ -24,7 +24,7 @@ public static class GridPoints
 
     public static bool IsModificationStep(char gridPoint, out int modifiedNumSteps)
     {
-        modifiedNumSteps = 1;
+        modifiedNumSteps = 0;
         
         if (char.IsDigit(gridPoint))
         {

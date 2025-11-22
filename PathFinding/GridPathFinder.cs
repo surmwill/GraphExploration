@@ -84,49 +84,80 @@ public static class GridPathFinder
         while (nextPositions.Count > 0)
         {
             (int row, int col, int numSteps) currentPosition = nextPositions.Dequeue();
+            Console.WriteLine(currentPosition.numSteps);
             
-            if (currentPosition.col > 0 && 
-                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]) && 
-                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col - 1], out int modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            if (currentPosition.col > 0 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]))
             {
-                solvedGrid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
-                navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col - 1), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
-                navigationDestinations[currentPosition.row, currentPosition.col - 1] = navigationDestination;
-                nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1, currentPosition.numSteps + modifiedNumSteps));  
-                validNavigationDestinations.Add(navigationDestination);
+                if (!GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col - 1], out int modifiedNumSteps))
+                {
+                    modifiedNumSteps = 1;
+                }
+                else
+                {
+                    Console.WriteLine("IS MOD STEP " + solvedGrid[currentPosition.row, currentPosition.col - 1]);
+                }
+
+                if (currentPosition.numSteps + modifiedNumSteps <= maxNumSteps)
+                {
+                    Console.WriteLine("ADDED " + currentPosition.numSteps + " " + modifiedNumSteps);
+                    solvedGrid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
+                    navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col - 1), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
+                    navigationDestinations[currentPosition.row, currentPosition.col - 1] = navigationDestination;
+                    nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1, currentPosition.numSteps + modifiedNumSteps));  
+                    validNavigationDestinations.Add(navigationDestination);
+                }
             }
 
-            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && 
-                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]) && 
-                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row + 1, currentPosition.col], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
-            {
-                solvedGrid[currentPosition.row + 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_UP;
-                navigationDestination = new NavigationDestination((currentPosition.row + 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
-                navigationDestinations[currentPosition.row + 1, currentPosition.col] = navigationDestination;
-                nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));  
-                validNavigationDestinations.Add(navigationDestination);
+            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]))
+            { 
+                Console.WriteLine("D");
+                if (!GridPoints.IsModificationStep(solvedGrid[currentPosition.row + 1, currentPosition.col], out int modifiedNumSteps))
+                {
+                    modifiedNumSteps = 1;
+                }
+
+                if (currentPosition.numSteps + modifiedNumSteps <= maxNumSteps)
+                {
+                    solvedGrid[currentPosition.row + 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_UP;
+                    navigationDestination = new NavigationDestination((currentPosition.row + 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
+                    navigationDestinations[currentPosition.row + 1, currentPosition.col] = navigationDestination;
+                    nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));  
+                    validNavigationDestinations.Add(navigationDestination);   
+                }
             }
 
-            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && 
-                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col + 1]) && 
-                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col + 1], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col + 1]))
             {
-                solvedGrid[currentPosition.row, currentPosition.col + 1] = GridPoints.DIR_BACK_TO_ORIGIN_LEFT;
-                navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col + 1), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
-                navigationDestinations[currentPosition.row, currentPosition.col + 1] = navigationDestination;
-                nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1, currentPosition.numSteps + modifiedNumSteps));  
-                validNavigationDestinations.Add(navigationDestination);
+                if (!GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col + 1], out int modifiedNumSteps))
+                {
+                    modifiedNumSteps = 1;
+                }
+
+                if (currentPosition.numSteps + modifiedNumSteps <= maxNumSteps)
+                {
+                    solvedGrid[currentPosition.row, currentPosition.col + 1] = GridPoints.DIR_BACK_TO_ORIGIN_LEFT;
+                    navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col + 1), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
+                    navigationDestinations[currentPosition.row, currentPosition.col + 1] = navigationDestination;
+                    nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1, currentPosition.numSteps + modifiedNumSteps));
+                    validNavigationDestinations.Add(navigationDestination);
+                }
             }
 
-            if (currentPosition.row > 0 && 
-                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row - 1, currentPosition.col]) &&
-                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row - 1, currentPosition.col], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            if (currentPosition.row > 0 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row - 1, currentPosition.col]))
             {
-                solvedGrid[currentPosition.row - 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_DOWN;
-                navigationDestination = new NavigationDestination((currentPosition.row - 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
-                navigationDestinations[currentPosition.row - 1, currentPosition.col] = navigationDestination;
-                nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));   
-                validNavigationDestinations.Add(navigationDestination);
+                if (!GridPoints.IsModificationStep(solvedGrid[currentPosition.row - 1, currentPosition.col], out int modifiedNumSteps))
+                {
+                    modifiedNumSteps = 1;
+                }
+
+                if (currentPosition.numSteps + modifiedNumSteps <= maxNumSteps)
+                {
+                    solvedGrid[currentPosition.row - 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_DOWN;
+                    navigationDestination = new NavigationDestination((currentPosition.row - 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + modifiedNumSteps, solvedGrid);
+                    navigationDestinations[currentPosition.row - 1, currentPosition.col] = navigationDestination;
+                    nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));
+                    validNavigationDestinations.Add(navigationDestination);
+                }
             }
         }
 

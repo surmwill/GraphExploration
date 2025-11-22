@@ -2,7 +2,7 @@
 
 public class GridPathFromTester
 {
-    const string TestGridsFileName = "TestPathGromGrids.txt";
+    const string TestGridsFileName = "TestPathFromGrids.txt";
 
     public static void TestPathsFrom()
     {
