@@ -56,14 +56,81 @@ public static class GridPathFinder
         return grid;
     }
 
-    public static void GetPathsFrom(SerializedGrid serializedGrid, int steps)
+    public static NavigationDestinationSet GetPathsFrom(SerializedGrid serializedGrid, int maxNumSteps)
     {
         if (!serializedGrid.HasOrigin)
         {
             throw new ArgumentException("No origin");
         }
+
+        if (!IsPointInGrid(serializedGrid.Origin, serializedGrid.Dimensions))
+        {
+            throw new ArgumentException("Origin is not in the grid");
+        }
+
+        maxNumSteps = Math.Max(maxNumSteps, 0);
+        char[,] solvedGrid = DeserializeGrid(serializedGrid);
         
+        NavigationDestination?[,] navigationDestinations = new NavigationDestination?[serializedGrid.Dimensions.numRows, serializedGrid.Dimensions.numCols];
+        List<NavigationDestination> validNavigationDestinations = new List<NavigationDestination>();
         
+        NavigationDestination navigationDestination = new NavigationDestination(serializedGrid.Origin, serializedGrid.Origin, 0, solvedGrid);
+        navigationDestinations[serializedGrid.Origin.row, serializedGrid.Origin.col] = navigationDestination;
+        validNavigationDestinations.Add(navigationDestination);
+        
+        Queue<(int row, int col, int numSteps)> nextPositions = new Queue<(int row, int col, int numSteps)>();
+        nextPositions.Enqueue((serializedGrid.Origin.row, serializedGrid.Origin.col, 0));
+        
+        while (nextPositions.Count > 0)
+        {
+            (int row, int col, int numSteps) currentPosition = nextPositions.Dequeue();
+            
+            if (currentPosition.col > 0 && 
+                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]) && 
+                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col - 1], out int modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            {
+                solvedGrid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
+                navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col - 1), serializedGrid.Origin, currentPosition.numSteps + 1, solvedGrid);
+                navigationDestinations[currentPosition.row, currentPosition.col - 1] = navigationDestination;
+                nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1, currentPosition.numSteps + modifiedNumSteps));  
+                validNavigationDestinations.Add(navigationDestination);
+            }
+
+            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && 
+                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]) && 
+                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row + 1, currentPosition.col], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            {
+                solvedGrid[currentPosition.row + 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_UP;
+                navigationDestination = new NavigationDestination((currentPosition.row + 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + 1, solvedGrid);
+                navigationDestinations[currentPosition.row + 1, currentPosition.col] = navigationDestination;
+                nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));  
+                validNavigationDestinations.Add(navigationDestination);
+            }
+
+            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && 
+                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col + 1]) && 
+                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row, currentPosition.col + 1], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            {
+                solvedGrid[currentPosition.row, currentPosition.col + 1] = GridPoints.DIR_BACK_TO_ORIGIN_LEFT;
+                navigationDestination = new NavigationDestination((currentPosition.row, currentPosition.col + 1), serializedGrid.Origin, currentPosition.numSteps + 1, solvedGrid);
+                navigationDestinations[currentPosition.row, currentPosition.col + 1] = navigationDestination;
+                nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1, currentPosition.numSteps + modifiedNumSteps));  
+                validNavigationDestinations.Add(navigationDestination);
+            }
+
+            if (currentPosition.row > 0 && 
+                !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row - 1, currentPosition.col]) &&
+                (GridPoints.IsModificationStep(solvedGrid[currentPosition.row - 1, currentPosition.col], out modifiedNumSteps) ? modifiedNumSteps : 1) + currentPosition.numSteps <= maxNumSteps)
+            {
+                solvedGrid[currentPosition.row - 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_DOWN;
+                navigationDestination = new NavigationDestination((currentPosition.row - 1, currentPosition.col), serializedGrid.Origin, currentPosition.numSteps + 1, solvedGrid);
+                navigationDestinations[currentPosition.row - 1, currentPosition.col] = navigationDestination;
+                nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col, currentPosition.numSteps + modifiedNumSteps));   
+                validNavigationDestinations.Add(navigationDestination);
+            }
+        }
+
+        return new NavigationDestinationSet(navigationDestinations, validNavigationDestinations);
     }
 
     public static NavigationInstructionSet? GetPathTo(SerializedGrid serializedGrid)
@@ -77,6 +144,11 @@ public static class GridPathFinder
         {
             throw new ArgumentException("No target");
         }
+
+        if (!IsPointInGrid(serializedGrid.Origin, serializedGrid.Dimensions))
+        {
+            throw new ArgumentException("Origin is not in the grid");
+        }
         
         if (!IsPointInGrid(serializedGrid.Target, serializedGrid.Dimensions))
         {
@@ -89,11 +161,12 @@ public static class GridPathFinder
         }
 
         char[,] solvedGrid = DeserializeGrid(serializedGrid);
+        
         Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
         nextPositions.Enqueue(serializedGrid.Origin);
         
         bool found = false;
-        while (nextPositions.Any())
+        while (nextPositions.Count > 0)
         {
             (int row, int col) currentPosition = nextPositions.Dequeue();
             if (currentPosition == serializedGrid.Target)
@@ -130,19 +203,13 @@ public static class GridPathFinder
         return found ? ReverseBuildPathToOrigin(serializedGrid.Target, solvedGrid) : null;
     }
 
-    public static NavigationInstructionSet? ReverseBuildPathToOrigin((int row, int col) currentPosition, char[,] solvedGrid)
+    public static NavigationInstructionSet ReverseBuildPathToOrigin((int row, int col) currentPosition, char[,] solvedGrid)
     {
-        if (solvedGrid[currentPosition.row, currentPosition.col] == GridPoints.Origin)
-        {
-            return null;
-        }
-        
         int totalMagnitude = 0;
         List<NavigationInstruction> navigationInstructions = new List<NavigationInstruction>();
         (int row, int col) foundOrigin = default;
         
         ReverseAndRememberDirectionBack(currentPosition, navigationInstructions, ref totalMagnitude, ref foundOrigin, solvedGrid);
-
         return new NavigationInstructionSet(foundOrigin, currentPosition, navigationInstructions, totalMagnitude);
     }
 
@@ -167,7 +234,7 @@ public static class GridPathFinder
             case GridPoints.DIR_BACK_TO_ORIGIN_RIGHT:
             {
                 ReverseAndRememberDirectionBack((currentPosition.row, currentPosition.col + 1), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
-                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Left)
+                if (originToTarget.Count == 0 || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Left)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Left));
                 }
@@ -184,7 +251,7 @@ public static class GridPathFinder
             case GridPoints.DIR_BACK_TO_ORIGIN_DOWN:
             {
                 ReverseAndRememberDirectionBack((currentPosition.row + 1, currentPosition.col), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
-                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Up)
+                if (originToTarget.Count == 0 || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Up)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Up));
                 }
@@ -201,7 +268,7 @@ public static class GridPathFinder
             case GridPoints.DIR_BACK_TO_ORIGIN_LEFT:
             {
                 ReverseAndRememberDirectionBack((currentPosition.row, currentPosition.col - 1), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
-                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Right)
+                if (originToTarget.Count == 0 || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Right)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Right));
                 }
@@ -218,7 +285,7 @@ public static class GridPathFinder
             case GridPoints.DIR_BACK_TO_ORIGIN_UP:
             {
                 ReverseAndRememberDirectionBack((currentPosition.row - 1, currentPosition.col), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
-                if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Down)
+                if (originToTarget.Count == 0 || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Down)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Down));
                 }

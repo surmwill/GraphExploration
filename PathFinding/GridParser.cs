@@ -22,7 +22,7 @@ public static class GridParser
             }
         }
 
-        if (gridLines.Any())
+        if (gridLines.Count > 0)
         {
             grids.Add(ParseGrid(gridLines));
         }

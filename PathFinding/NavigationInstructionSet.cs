@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace GridPathFinding;
+﻿namespace GridPathFinding;
 
 public class NavigationInstructionSet
 {
