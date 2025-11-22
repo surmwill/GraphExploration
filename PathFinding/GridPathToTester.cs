@@ -2,20 +2,20 @@
 
 namespace GridPathFinding;
 
-public static class GridPathTester
+public static class GridPathToTester
 {
-    const string TestGridPathsFileName = "TestGridPaths.txt";
+    const string TestGridsFileName = "TestPathToGrids.txt";
 
-    public static void TestPathTo()
+    public static void TestPathsTo()
     {
-        List<char[,]> grids = GridParser.ParseGridsFromFile(TestGridPathsFileName);
+        List<char[,]> grids = GridParser.ParseGridsFromFile(TestGridsFileName);
 
         for (int i = 0; i < grids.Count; i++)
         {
             char[,] grid = grids[i];
             SerializedGrid serializedGrid = new SerializedGrid(grid);
             
-            Console.WriteLine($"------------ Test Grid {i} ------------");
+            Console.WriteLine($"------------ Path To - Test Grid {i} ------------");
             
             NavigationInstructionSet? instructionSet = GridPathFinder.GetPathTo(serializedGrid);
             if (instructionSet != null)
@@ -40,8 +40,7 @@ public static class GridPathTester
 
     private static char[,] DrawPathOnGrid(NavigationInstructionSet instructionSet, char[,] grid)
     {
-        char[,] gridCopy = CopyGrid(grid);
-        gridCopy[instructionSet.Origin.row, instructionSet.Origin.col] = GridPoints.Origin;
+        char[,] gridCopy = GridTestingUtilities.CopyGrid(grid);
         
         (int row, int col) currentPosition = instructionSet.Origin;
         foreach (NavigationInstruction navigationInstruction in instructionSet.PathToTarget)
@@ -50,19 +49,19 @@ public static class GridPathTester
 
             switch (navigationInstruction.Direction)
             {
-                case NavigationInstruction.NavigationDirection.Left:
+                case NavigationDirection.Left:
                     moveCols = navigationInstruction.Magnitude * -1;
                     break;
                 
-                case NavigationInstruction.NavigationDirection.Right:
+                case NavigationDirection.Right:
                     moveCols = navigationInstruction.Magnitude;
                     break;
                 
-                case NavigationInstruction.NavigationDirection.Up:
+                case NavigationDirection.Up:
                     moveRows = navigationInstruction.Magnitude * -1;
                     break;
                 
-                case NavigationInstruction.NavigationDirection.Down:
+                case NavigationDirection.Down:
                     moveRows = navigationInstruction.Magnitude;
                     break;
             }
@@ -70,24 +69,17 @@ public static class GridPathTester
             for (int i = 0; i < Math.Abs(moveCols); i++)
             {
                 currentPosition.col += moveCols > 0 ? 1 : -1;
-                gridCopy[currentPosition.row, currentPosition.col] = '.';
+                gridCopy[currentPosition.row, currentPosition.col] = GridPoints.DEBUG_PRINT_PATH;
             }
             
             for (int i = 0; i < Math.Abs(moveRows); i++)
             {
                 currentPosition.row += moveRows > 0 ? 1 : -1;
-                gridCopy[currentPosition.row, currentPosition.col] = '.';
+                gridCopy[currentPosition.row, currentPosition.col] = GridPoints.DEBUG_PRINT_PATH;
             }
         }
         
         gridCopy[instructionSet.Target.row, instructionSet.Target.col] = GridPoints.Target;
         return gridCopy;
-    }
-
-    private static char[,] CopyGrid(char[,] grid)
-    {
-        char[,] copiedGrid = new char[grid.GetLength(0), grid.GetLength(1)];
-        Array.Copy(grid, copiedGrid, grid.Length);
-        return copiedGrid;
     }
 }

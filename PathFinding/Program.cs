@@ -1,3 +1,4 @@
 ﻿using GridPathFinding;
 
-GridPathTester.TestPathTo();
+GridPathToTester.TestPathsTo();
+

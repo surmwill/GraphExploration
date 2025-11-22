@@ -45,7 +45,7 @@ public static class GridPathFinder
         
         foreach (ModificationStep modificationStep in serializedGrid.ModifySteps.Where(modificationStep => IsPointInGrid(modificationStep.Position, gridDimensions)))
         {
-            grid[modificationStep.Position.row, modificationStep.Position.col] = GridPoints.ModificationStepToGridPoint(modificationStep);
+            grid[modificationStep.Position.row, modificationStep.Position.col] = GridPoints.ModificationStepValueToGridPoint(modificationStep.Value);
         }
     }
 

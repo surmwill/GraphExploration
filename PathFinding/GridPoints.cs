@@ -12,6 +12,8 @@ public static class GridPoints
     public const char DIR_BACK_TO_ORIGIN_UP = 'U';
     public const char DIR_BACK_TO_ORIGIN_DOWN = 'B';
 
+    public const char DEBUG_PRINT_PATH = '.';
+
     public static bool IsDirectionBackToOrigin(char gridPoint)
     {
         return gridPoint == DIR_BACK_TO_ORIGIN_RIGHT || 
@@ -33,9 +35,9 @@ public static class GridPoints
         return false;
     }
 
-    public static char ModificationStepToGridPoint(ModificationStep modificationStep)
+    public static char ModificationStepValueToGridPoint(int modificationStepValue)
     {
-        return (char) ('0' + modificationStep.Value);
+        return (char) ('0' + modificationStepValue);
     }
     
     public static bool IsOccupiedPoint(char gridPoint)
