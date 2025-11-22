@@ -18,19 +18,32 @@ public static class GridPathFinder
         
         return grid;
     }
-
-    private static void AddObstaclesToGrid(char[,] grid, IEnumerable<(int row, int col)> obstacles)
-    {
-        (int numRows, int numCols) gridDimensions = (grid.GetLength(0), grid.GetLength(1));
-        foreach ((int row, int col) in obstacles.Where(obstacle => IsPointInGrid(obstacle, gridDimensions)))
-        {
-            grid[row, col] = GridPoints.Obstacle;
-        }
-    }
-
+    
     private static bool IsPointInGrid((int row, int col) point, (int numRows, int numCols) dimensions)
     {
         return point.row >= 0 && point.row < dimensions.numRows && point.col >= 0 && point.col < dimensions.numCols;
+    }
+
+    private static void AddSpecialGridPoints(char[,] grid, SerializedGrid serializedGrid)
+    {
+        (int numRows, int numCols) gridDimensions = (grid.GetLength(0), grid.GetLength(1));
+        
+        foreach ((int row, int col) in serializedGrid.Obstacles.Where(obstacle => IsPointInGrid(obstacle, gridDimensions)))
+        {
+            grid[row, col] = GridPoints.Obstacle;
+        }
+        
+        foreach (ModificationStep modificationStep in serializedGrid.ModifySteps.Where(modificationStep => IsPointInGrid(modificationStep.Position, gridDimensions)))
+        {
+            grid[modificationStep.Position.x, modificationStep.Position.y] = GridPoints.ModificationStepToGridPoint(modificationStep);
+        }
+    }
+
+    private static char[,] DeserializeGrid(SerializedGrid serializedGrid)
+    {
+        char[,] grid = CreateOrClearGrid(serializedGrid.Dimensions.numRows, serializedGrid.Dimensions.numCols);
+        AddSpecialGridPoints(grid, serializedGrid);
+        return grid;
     }
 
     public static void GetPathsFrom(SerializedGrid serializedGrid)
@@ -49,9 +62,8 @@ public static class GridPathFinder
         {
             return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, new List<NavigationInstruction>());
         }
-        
-        char[,] grid = CreateOrClearGrid(serializedGrid.Dimensions.numRows, serializedGrid.Dimensions.numCols);
-        AddObstaclesToGrid(grid, serializedGrid.Obstacles);
+
+        char[,] grid = DeserializeGrid(serializedGrid);
         
         Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
         nextPositions.Enqueue(serializedGrid.Origin);

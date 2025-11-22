@@ -32,5 +32,10 @@ public static class GridPoints
 
         return false;
     }
+
+    public static char ModificationStepToGridPoint(ModificationStep modificationStep)
+    {
+        return (char) ('0' + modificationStep.Value);
+    }
     
 }
