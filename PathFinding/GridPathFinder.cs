@@ -33,31 +33,36 @@ public static class GridPathFinder
         return point.row >= 0 && point.row < dimensions.numRows && point.col >= 0 && point.col < dimensions.numCols;
     }
 
-    public static NavigationInstructionSet? GetPathTo((int row, int col) origin, (int row, int col) target, (int numRows, int numCols) gridDimensions, IEnumerable<(int row, int col)> obstacles)
+    public static void GetPathsFrom(SerializedGrid serializedGrid)
     {
-        if (!IsPointInGrid(target, gridDimensions))
+        
+    }
+
+    public static NavigationInstructionSet? GetPathTo(SerializedGrid serializedGrid)
+    {
+        if (!IsPointInGrid(serializedGrid.Target, serializedGrid.Dimensions))
         {
             return null;
         }
         
-        if (origin == target)
+        if (serializedGrid.Origin == serializedGrid.Target)
         {
-            return new NavigationInstructionSet(origin, target, new List<NavigationInstruction>());
+            return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, new List<NavigationInstruction>());
         }
         
-        char[,] grid = CreateOrClearGrid(gridDimensions.numRows, gridDimensions.numCols);
-        AddObstaclesToGrid(grid, obstacles);
+        char[,] grid = CreateOrClearGrid(serializedGrid.Dimensions.numRows, serializedGrid.Dimensions.numCols);
+        AddObstaclesToGrid(grid, serializedGrid.Obstacles);
         
         Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
-        nextPositions.Enqueue(origin);
+        nextPositions.Enqueue(serializedGrid.Origin);
         
-        grid[origin.row, origin.col] = GridPoints.Origin;
+        grid[serializedGrid.Origin.row, serializedGrid.Origin.col] = GridPoints.Origin;
         bool found = false;
         
         while (nextPositions.Any())
         {
             (int row, int col) currentPosition = nextPositions.Dequeue();
-            if (currentPosition == target)
+            if (currentPosition == serializedGrid.Target)
             {
                 found = true;
                 break;
@@ -69,13 +74,13 @@ public static class GridPathFinder
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1));   
             }
 
-            if (currentPosition.row < gridDimensions.numRows - 1 && !IsOccupiedPoint(grid[currentPosition.row + 1, currentPosition.col]))
+            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !IsOccupiedPoint(grid[currentPosition.row + 1, currentPosition.col]))
             {
                 grid[currentPosition.row + 1, currentPosition.col] = 'U';
                 nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col));   
             }
 
-            if (currentPosition.col < gridDimensions.numCols - 1 && !IsOccupiedPoint((grid[currentPosition.row, currentPosition.col + 1])))
+            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && !IsOccupiedPoint((grid[currentPosition.row, currentPosition.col + 1])))
             {
                 grid[currentPosition.row, currentPosition.col + 1] = 'L';
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1));   
@@ -95,9 +100,9 @@ public static class GridPathFinder
 
         int totalMagnitude = 0;
         List<NavigationInstruction> navigationInstructions = new List<NavigationInstruction>();
-        ReverseAndAddToPath(target, navigationInstructions, ref totalMagnitude, grid);
+        ReverseAndAddToPath(serializedGrid.Target, navigationInstructions, ref totalMagnitude, grid);
 
-        return new NavigationInstructionSet(origin, target, navigationInstructions, totalMagnitude);
+        return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, navigationInstructions, totalMagnitude);
 
         bool IsOccupiedPoint(char gridPoint)
         {

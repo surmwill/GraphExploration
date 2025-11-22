@@ -1,16 +1,41 @@
 ﻿namespace PathFinding;
 
-public class SerializedGrid
+public struct SerializedGrid
 {
     public (int numRows, int numCols) Dimensions { get; }
     
     public (int row, int col) Origin { get; }
-        
+    
     public (int row, int col) Target { get; }
+    
+    public List<(int x, int y)> Obstacles => _obstacles ??= new List<(int x, int y)>();
+    
+    public List<ModifyStepBy> ModifySteps => _modifySteps ??= new List<ModifyStepBy>();
+    
+    public bool HasOrigin { get; }
+    
+    public bool HasTarget { get; }
 
-    public List<(int x, int y)> Obstacles { get; } = new();
+    public bool HasObstacles => _obstacles != null;
+    
+    public bool HasModifySteps => _modifySteps != null;
+    
+    private List<(int x, int y)>? _obstacles;
 
-    public List<CustomNumSteps> CustomNumSteps { get; } = new();
+    private List<ModifyStepBy>? _modifySteps;
+
+    public SerializedGrid(
+        (int numRows, int numCols) dimensions, 
+        (int row, int col) origin, (int row, int col) target, 
+        List<(int x, int y)>? obstacles, 
+        List<ModifyStepBy>? modifySteps)
+    {
+        Dimensions = dimensions;
+        Origin = origin;
+        Target = target;
+        _obstacles = obstacles;
+        _modifySteps = modifySteps;
+    }
 
     public SerializedGrid(char[,] grid)
     {
@@ -25,10 +50,12 @@ public class SerializedGrid
                 if (point == GridPoints.Origin)
                 {
                     Origin = (row, col);
+                    HasOrigin = true;
                 }
                 else if (point == GridPoints.Target)
                 {
-                    Origin = (row, col);
+                    Target = (row, col);
+                    HasTarget = true;
                 }
                 else if (point == GridPoints.Obstacle)
                 {
@@ -36,7 +63,7 @@ public class SerializedGrid
                 }
                 else if (GridPoints.IsCustomNumSteps(point, out int numSteps))
                 {
-                    CustomNumSteps.Add(new CustomNumSteps((row, col), numSteps));
+                    ModifySteps.Add(new ModifyStepBy((row, col), numSteps));
                 }
             }
         }

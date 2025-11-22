@@ -17,7 +17,7 @@ public static class GridPathTester
             
             Console.WriteLine($"------------ Test Grid {i} ------------");
             
-            NavigationInstructionSet? instructionSet = GridPathFinder.GetPathTo(serializedGrid.Origin, serializedGrid.Target, serializedGrid.Dimensions, serializedGrid.Obstacles);
+            NavigationInstructionSet? instructionSet = GridPathFinder.GetPathTo(serializedGrid);
             if (instructionSet != null)
             {
                 if (instructionSet.Origin == instructionSet.Target)
@@ -90,5 +90,4 @@ public static class GridPathTester
         Array.Copy(grid, copiedGrid, grid.Length);
         return copiedGrid;
     }
-    
 }
