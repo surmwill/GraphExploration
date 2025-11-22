@@ -27,6 +27,16 @@ public static class GridPathFinder
     private static void AddSpecialGridPoints(char[,] grid, SerializedGrid serializedGrid)
     {
         (int numRows, int numCols) gridDimensions = (grid.GetLength(0), grid.GetLength(1));
+
+        if (serializedGrid.HasOrigin)
+        {
+            grid[serializedGrid.Origin.row, serializedGrid.Origin.col] = GridPoints.Origin;
+        }
+
+        if (serializedGrid.HasTarget)
+        {
+            grid[serializedGrid.Target.row, serializedGrid.Target.col] = GridPoints.Target;
+        }
         
         foreach ((int row, int col) in serializedGrid.Obstacles.Where(obstacle => IsPointInGrid(obstacle, gridDimensions)))
         {
@@ -79,8 +89,6 @@ public static class GridPathFinder
         }
 
         char[,] solvedGrid = DeserializeGrid(serializedGrid);
-        solvedGrid[serializedGrid.Origin.row, serializedGrid.Origin.col] = GridPoints.Origin;
-        
         Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
         nextPositions.Enqueue(serializedGrid.Origin);
         
@@ -94,25 +102,25 @@ public static class GridPathFinder
                 break;
             }
             
-            if (currentPosition.col > 0 && !IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]))
+            if (currentPosition.col > 0 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row, currentPosition.col - 1]))
             {
                 solvedGrid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1));   
             }
 
-            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]))
+            if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row + 1, currentPosition.col]))
             {
                 solvedGrid[currentPosition.row + 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_UP;
                 nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col));   
             }
 
-            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && !IsOccupiedPoint((solvedGrid[currentPosition.row, currentPosition.col + 1])))
+            if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && !GridPoints.IsOccupiedPoint((solvedGrid[currentPosition.row, currentPosition.col + 1])))
             {
                 solvedGrid[currentPosition.row, currentPosition.col + 1] = GridPoints.DIR_BACK_TO_ORIGIN_LEFT;
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1));   
             }
 
-            if (currentPosition.row > 0 && !IsOccupiedPoint(solvedGrid[currentPosition.row - 1, currentPosition.col]))
+            if (currentPosition.row > 0 && !GridPoints.IsOccupiedPoint(solvedGrid[currentPosition.row - 1, currentPosition.col]))
             {
                 solvedGrid[currentPosition.row - 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_DOWN;
                 nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col));   
@@ -120,11 +128,6 @@ public static class GridPathFinder
         }
 
         return found ? ReverseBuildPathToOrigin(serializedGrid.Target, solvedGrid) : null;
-
-        bool IsOccupiedPoint(char gridPoint)
-        {
-            return gridPoint == GridPoints.Obstacle || gridPoint == GridPoints.Origin || GridPoints.IsDirectionBackToOrigin(gridPoint);
-        }
     }
 
     public static NavigationInstructionSet? ReverseBuildPathToOrigin((int row, int col) currentPosition, char[,] solvedGrid)

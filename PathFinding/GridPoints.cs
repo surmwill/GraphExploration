@@ -38,4 +38,9 @@ public static class GridPoints
         return (char) ('0' + modificationStep.Value);
     }
     
+    public static bool IsOccupiedPoint(char gridPoint)
+    {
+        return gridPoint == Obstacle || gridPoint == Origin || IsDirectionBackToOrigin(gridPoint);
+    }
+    
 }
