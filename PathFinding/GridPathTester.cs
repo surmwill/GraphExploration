@@ -1,6 +1,6 @@
-﻿using static PathFinding.NavigationInstruction;
+﻿using static GridPathFinding.NavigationInstruction;
 
-namespace PathFinding;
+namespace GridPathFinding;
 
 public static class GridPathTester
 {
@@ -50,19 +50,19 @@ public static class GridPathTester
 
             switch (navigationInstruction.Direction)
             {
-                case NavigationDirection.Left:
+                case NavigationInstruction.NavigationDirection.Left:
                     moveCols = navigationInstruction.Magnitude * -1;
                     break;
                 
-                case NavigationDirection.Right:
+                case NavigationInstruction.NavigationDirection.Right:
                     moveCols = navigationInstruction.Magnitude;
                     break;
                 
-                case NavigationDirection.Up:
+                case NavigationInstruction.NavigationDirection.Up:
                     moveRows = navigationInstruction.Magnitude * -1;
                     break;
                 
-                case NavigationDirection.Down:
+                case NavigationInstruction.NavigationDirection.Down:
                     moveRows = navigationInstruction.Magnitude;
                     break;
             }

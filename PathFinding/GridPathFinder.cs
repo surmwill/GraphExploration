@@ -1,4 +1,4 @@
-﻿namespace PathFinding;
+﻿namespace GridPathFinding;
 
 public static class GridPathFinder
 {
@@ -35,7 +35,7 @@ public static class GridPathFinder
         
         foreach (ModificationStep modificationStep in serializedGrid.ModifySteps.Where(modificationStep => IsPointInGrid(modificationStep.Position, gridDimensions)))
         {
-            grid[modificationStep.Position.x, modificationStep.Position.y] = GridPoints.ModificationStepToGridPoint(modificationStep);
+            grid[modificationStep.Position.row, modificationStep.Position.col] = GridPoints.ModificationStepToGridPoint(modificationStep);
         }
     }
 
@@ -119,16 +119,7 @@ public static class GridPathFinder
             }
         }
 
-        if (!found)
-        {
-            return null;
-        }
-
-        int totalMagnitude = 0;
-        List<NavigationInstruction> navigationInstructions = new List<NavigationInstruction>();
-        ReverseAndAddToPath(serializedGrid.Target, navigationInstructions, ref totalMagnitude, grid);
-
-        return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, navigationInstructions, totalMagnitude);
+        return found ? ReverseBuildPathToOrigin(serializedGrid.Target, grid) : null;
 
         bool IsOccupiedPoint(char gridPoint)
         {
@@ -136,13 +127,35 @@ public static class GridPathFinder
         }
     }
 
-    private static void ReverseAndAddToPath((int row, int col) currentPosition, List<NavigationInstruction> originToTarget, ref int totalMagnitude, char[,] grid)
+    public static NavigationInstructionSet? ReverseBuildPathToOrigin((int row, int col) currentPosition, char[,] solvedGrid)
+    {
+        if (solvedGrid[currentPosition.row, currentPosition.col] == GridPoints.Origin)
+        {
+            return null;
+        }
+        
+        int totalMagnitude = 0;
+        List<NavigationInstruction> navigationInstructions = new List<NavigationInstruction>();
+        (int row, int col) foundOrigin = default;
+        
+        ReverseAndRememberDirectionBack(currentPosition, navigationInstructions, ref totalMagnitude, ref foundOrigin, solvedGrid);
+
+        return new NavigationInstructionSet(foundOrigin, currentPosition, navigationInstructions, totalMagnitude);
+    }
+
+    private static void ReverseAndRememberDirectionBack(
+        (int row, int col) currentPosition, 
+        List<NavigationInstruction> originToTarget, 
+        ref int totalMagnitude,
+        ref (int row, int col) foundOrigin,
+        char[,] solvedGrid)
     {
         totalMagnitude++;
         
-        char dirBackToOrigin = grid[currentPosition.row, currentPosition.col];
+        char dirBackToOrigin = solvedGrid[currentPosition.row, currentPosition.col];
         if (dirBackToOrigin == GridPoints.Origin)
         {
+            foundOrigin = currentPosition;
             return;
         }
         
@@ -150,7 +163,7 @@ public static class GridPathFinder
         {
             case GridPoints.DIR_BACK_TO_ORIGIN_RIGHT:
             {
-                ReverseAndAddToPath((currentPosition.row, currentPosition.col + 1), originToTarget, ref totalMagnitude, grid);
+                ReverseAndRememberDirectionBack((currentPosition.row, currentPosition.col + 1), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Left)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Left));
@@ -167,7 +180,7 @@ public static class GridPathFinder
 
             case GridPoints.DIR_BACK_TO_ORIGIN_DOWN:
             {
-                ReverseAndAddToPath((currentPosition.row + 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
+                ReverseAndRememberDirectionBack((currentPosition.row + 1, currentPosition.col), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Up)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Up));
@@ -184,7 +197,7 @@ public static class GridPathFinder
 
             case GridPoints.DIR_BACK_TO_ORIGIN_LEFT:
             {
-                ReverseAndAddToPath((currentPosition.row, currentPosition.col - 1), originToTarget, ref totalMagnitude, grid);
+                ReverseAndRememberDirectionBack((currentPosition.row, currentPosition.col - 1), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Right)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Right));
@@ -201,7 +214,7 @@ public static class GridPathFinder
 
             case GridPoints.DIR_BACK_TO_ORIGIN_UP:
             {
-                ReverseAndAddToPath((currentPosition.row - 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
+                ReverseAndRememberDirectionBack((currentPosition.row - 1, currentPosition.col), originToTarget, ref totalMagnitude, ref foundOrigin, solvedGrid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Down)
                 {
                     originToTarget.Add(new NavigationInstruction(NavigationInstruction.NavigationDirection.Down));

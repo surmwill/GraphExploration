@@ -1,12 +1,12 @@
-﻿namespace PathFinding;
+﻿namespace GridPathFinding;
 
 public struct ModificationStep
 {
-    public (int x, int y) Position { get; }
+    public (int row, int col) Position { get; }
     
     public int Value { get; }
 
-    public ModificationStep((int x, int y) position, int value)
+    public ModificationStep((int row, int col) position, int value)
     {
         Position = position;
         Value = value;
