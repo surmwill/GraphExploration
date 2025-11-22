@@ -20,13 +20,13 @@ public static class GridPoints
                gridPoint == DIR_BACK_TO_ORIGIN_DOWN;
     }
 
-    public static bool IsCustomNumSteps(char gridPoint, out int numSteps)
+    public static bool IsModificationStep(char gridPoint, out int modifiedNumSteps)
     {
-        numSteps = 1;
+        modifiedNumSteps = 1;
         
         if (char.IsDigit(gridPoint))
         {
-            numSteps = gridPoint - '0';
+            modifiedNumSteps = gridPoint - '0';
             return true;
         }
 

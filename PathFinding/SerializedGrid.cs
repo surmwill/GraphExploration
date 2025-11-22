@@ -10,7 +10,7 @@ public struct SerializedGrid
     
     public List<(int x, int y)> Obstacles => _obstacles ??= new List<(int x, int y)>();
     
-    public List<ModifyStepBy> ModifySteps => _modifySteps ??= new List<ModifyStepBy>();
+    public List<ModificationStep> ModifySteps => _modificationSteps ??= new List<ModificationStep>();
     
     public bool HasOrigin { get; }
     
@@ -18,23 +18,23 @@ public struct SerializedGrid
 
     public bool HasObstacles => _obstacles != null;
     
-    public bool HasModifySteps => _modifySteps != null;
+    public bool HasModificationSteps => _modificationSteps != null;
     
     private List<(int x, int y)>? _obstacles;
 
-    private List<ModifyStepBy>? _modifySteps;
+    private List<ModificationStep>? _modificationSteps;
 
     public SerializedGrid(
         (int numRows, int numCols) dimensions, 
         (int row, int col) origin, (int row, int col) target, 
         List<(int x, int y)>? obstacles, 
-        List<ModifyStepBy>? modifySteps)
+        List<ModificationStep>? modificationSteps)
     {
         Dimensions = dimensions;
         Origin = origin;
         Target = target;
         _obstacles = obstacles;
-        _modifySteps = modifySteps;
+        _modificationSteps = modificationSteps;
     }
 
     public SerializedGrid(char[,] grid)
@@ -61,9 +61,9 @@ public struct SerializedGrid
                 {
                     Obstacles.Add((row, col));
                 }
-                else if (GridPoints.IsCustomNumSteps(point, out int numSteps))
+                else if (GridPoints.IsModificationStep(point, out int numSteps))
                 {
-                    ModifySteps.Add(new ModifyStepBy((row, col), numSteps));
+                    ModifySteps.Add(new ModificationStep((row, col), numSteps));
                 }
             }
         }

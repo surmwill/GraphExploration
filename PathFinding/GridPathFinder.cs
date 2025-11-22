@@ -114,13 +114,13 @@ public static class GridPathFinder
     {
         totalMagnitude++;
         
-        char directionBackToOrigin = grid[currentPosition.row, currentPosition.col];
-        if (directionBackToOrigin == GridPoints.Origin)
+        char dirBackToOrigin = grid[currentPosition.row, currentPosition.col];
+        if (dirBackToOrigin == GridPoints.Origin)
         {
             return;
         }
         
-        switch (directionBackToOrigin)
+        switch (dirBackToOrigin)
         {
             case GridPoints.DIR_BACK_TO_ORIGIN_RIGHT:
             {
