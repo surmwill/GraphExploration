@@ -70,25 +70,25 @@ public static class GridPathFinder
             
             if (currentPosition.col > 0 && !IsOccupiedPoint(grid[currentPosition.row, currentPosition.col - 1]))
             {
-                grid[currentPosition.row, currentPosition.col - 1] = 'R';
+                grid[currentPosition.row, currentPosition.col - 1] = GridPoints.DIR_BACK_TO_ORIGIN_RIGHT;
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col - 1));   
             }
 
             if (currentPosition.row < serializedGrid.Dimensions.numRows - 1 && !IsOccupiedPoint(grid[currentPosition.row + 1, currentPosition.col]))
             {
-                grid[currentPosition.row + 1, currentPosition.col] = 'U';
+                grid[currentPosition.row + 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_UP;
                 nextPositions.Enqueue((currentPosition.row + 1, currentPosition.col));   
             }
 
             if (currentPosition.col < serializedGrid.Dimensions.numCols - 1 && !IsOccupiedPoint((grid[currentPosition.row, currentPosition.col + 1])))
             {
-                grid[currentPosition.row, currentPosition.col + 1] = 'L';
+                grid[currentPosition.row, currentPosition.col + 1] = GridPoints.DIR_BACK_TO_ORIGIN_LEFT;
                 nextPositions.Enqueue((currentPosition.row, currentPosition.col + 1));   
             }
 
             if (currentPosition.row > 0 && !IsOccupiedPoint(grid[currentPosition.row - 1, currentPosition.col]))
             {
-                grid[currentPosition.row - 1, currentPosition.col] = 'D';
+                grid[currentPosition.row - 1, currentPosition.col] = GridPoints.DIR_BACK_TO_ORIGIN_DOWN;
                 nextPositions.Enqueue((currentPosition.row - 1, currentPosition.col));   
             }
         }
@@ -106,8 +106,7 @@ public static class GridPathFinder
 
         bool IsOccupiedPoint(char gridPoint)
         {
-            return gridPoint == GridPoints.Obstacle || gridPoint == GridPoints.Origin ||
-                   gridPoint == 'R' || gridPoint == 'L' || gridPoint == 'U' || gridPoint == 'D';
+            return gridPoint == GridPoints.Obstacle || gridPoint == GridPoints.Origin || GridPoints.IsDirectionBackToOrigin(gridPoint);
         }
     }
 
@@ -115,15 +114,15 @@ public static class GridPathFinder
     {
         totalMagnitude++;
         
-        char currentDirection = grid[currentPosition.row, currentPosition.col];
-        if (currentDirection == GridPoints.Origin)
+        char directionBackToOrigin = grid[currentPosition.row, currentPosition.col];
+        if (directionBackToOrigin == GridPoints.Origin)
         {
             return;
         }
         
-        switch (currentDirection)
+        switch (directionBackToOrigin)
         {
-            case 'R':
+            case GridPoints.DIR_BACK_TO_ORIGIN_RIGHT:
             {
                 ReverseAndAddToPath((currentPosition.row, currentPosition.col + 1), originToTarget, ref totalMagnitude, grid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Left)
@@ -140,7 +139,7 @@ public static class GridPathFinder
                 break;
             }
 
-            case 'D':
+            case GridPoints.DIR_BACK_TO_ORIGIN_DOWN:
             {
                 ReverseAndAddToPath((currentPosition.row + 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Up)
@@ -157,7 +156,7 @@ public static class GridPathFinder
                 break;
             }
 
-            case 'L':
+            case GridPoints.DIR_BACK_TO_ORIGIN_LEFT:
             {
                 ReverseAndAddToPath((currentPosition.row, currentPosition.col - 1), originToTarget, ref totalMagnitude, grid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Right)
@@ -174,7 +173,7 @@ public static class GridPathFinder
                 break;
             }
 
-            case 'U':
+            case GridPoints.DIR_BACK_TO_ORIGIN_UP:
             {
                 ReverseAndAddToPath((currentPosition.row - 1, currentPosition.col), originToTarget, ref totalMagnitude, grid);
                 if (!originToTarget.Any() || originToTarget.Last().Direction != NavigationInstruction.NavigationDirection.Down)
