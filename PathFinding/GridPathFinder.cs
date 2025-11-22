@@ -46,13 +46,28 @@ public static class GridPathFinder
         return grid;
     }
 
-    public static void GetPathsFrom(SerializedGrid serializedGrid)
+    public static void GetPathsFrom(SerializedGrid serializedGrid, int steps)
     {
+        if (!serializedGrid.HasOrigin)
+        {
+            throw new ArgumentException("No origin");
+        }
+        
         
     }
 
     public static NavigationInstructionSet? GetPathTo(SerializedGrid serializedGrid)
     {
+        if (!serializedGrid.HasOrigin)
+        {
+            throw new ArgumentException("No origin");
+        }
+
+        if (!serializedGrid.HasTarget)
+        {
+            throw new ArgumentException("No target");
+        }
+        
         if (!IsPointInGrid(serializedGrid.Target, serializedGrid.Dimensions))
         {
             return null;
@@ -60,17 +75,16 @@ public static class GridPathFinder
         
         if (serializedGrid.Origin == serializedGrid.Target)
         {
-            return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, new List<NavigationInstruction>());
+            return new NavigationInstructionSet(serializedGrid.Origin, serializedGrid.Target, []);
         }
 
         char[,] grid = DeserializeGrid(serializedGrid);
+        grid[serializedGrid.Origin.row, serializedGrid.Origin.col] = GridPoints.Origin;
         
         Queue<(int row, int col)> nextPositions = new Queue<(int row, int col)>();
         nextPositions.Enqueue(serializedGrid.Origin);
         
-        grid[serializedGrid.Origin.row, serializedGrid.Origin.col] = GridPoints.Origin;
         bool found = false;
-        
         while (nextPositions.Any())
         {
             (int row, int col) currentPosition = nextPositions.Dequeue();
