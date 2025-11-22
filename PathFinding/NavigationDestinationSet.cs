@@ -6,7 +6,7 @@ public class NavigationDestinationSet
     
     public List<NavigationDestination> ValidDestinations { get; }
 
-    public bool CanMove => ValidDestinations != null && ValidDestinations.Count > 0;
+    public bool CanMove => ValidDestinations.Count > 0;
 
     public NavigationDestinationSet(NavigationDestination?[,] navigationDestinations, List<NavigationDestination> validDestinations)
     {
