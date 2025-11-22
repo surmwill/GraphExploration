@@ -10,7 +10,8 @@ public class NavigationDestinationSet
     
     public List<NavigationDestination> ValidDestinations { get; }
 
-    public bool HasValidDestination => ValidDestinations.Count > 0;
+    // The first destination is always the origin (i.e. we don't move)
+    public bool CanMove => ValidDestinations.Count > 1;
 
     public NavigationDestinationSet((int row, int col) origin, int maxNumSteps, NavigationDestination?[,] destinationMap, List<NavigationDestination> validDestinations)
     {

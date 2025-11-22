@@ -26,15 +26,34 @@ public struct SerializedGrid
 
     public SerializedGrid(
         (int numRows, int numCols) dimensions, 
-        (int row, int col) origin, (int row, int col) target, 
+        (int row, int col)? origin, 
+        (int row, int col)? target, 
         List<(int x, int y)>? obstacles, 
         List<ModificationStep>? modificationSteps)
     {
         Dimensions = dimensions;
-        Origin = origin;
-        Target = target;
+
+        if (origin.HasValue)
+        {
+            Origin = origin.Value;
+            HasOrigin = true;
+        }
+
+        if (target.HasValue)
+        {
+            Target = target.Value;
+            HasTarget = true;
+        }
+        
         _obstacles = obstacles;
         _modificationSteps = modificationSteps;
+    }
+
+    public static SerializedGrid Empty(int numRows = 1, int numCols = 1)
+    {
+        char[,] grid = new char[1,1];
+        grid[0, 0] = GridPoints.Origin;
+        return new SerializedGrid(grid);
     }
 
     public SerializedGrid(char[,] grid)

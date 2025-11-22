@@ -7,6 +7,10 @@ public class GridPathFromTester
     public static void TestPathsFrom()
     {
         TestPathsFromWithMaxSteps(3);
+
+        Console.WriteLine("------------ Misc Tests ------------");
+        NavigationDestinationSet navigationDestinationSet = GridPathFinder.GetPathsFrom(SerializedGrid.Empty(), 0);
+        Console.WriteLine($"Testing if we can move with no max steps (expect false): {navigationDestinationSet.CanMove}\n");
     }
 
     private static void TestPathsFromWithMaxSteps(int maxNumSteps)
@@ -21,13 +25,13 @@ public class GridPathFromTester
             Console.WriteLine($"------------ Path From - Max Steps ({maxNumSteps}) - Test Grid {i} ------------");
 
             NavigationDestinationSet navigationDestinationSet = GridPathFinder.GetPathsFrom(serializedGrid, maxNumSteps);
-            if (navigationDestinationSet.HasValidDestination)
+            if (navigationDestinationSet.CanMove)
             {
                 Console.WriteLine("Drawing all paths");
                 GridParser.PrintGrid(DrawDestinationsOnGrid(navigationDestinationSet, grid));
                 
                 Console.WriteLine("Verifying data...");
-                VerifyDestinationSetData(navigationDestinationSet);
+                ValidateDestinationSet(navigationDestinationSet);
                 
                 Console.WriteLine("Drawing furthest path");
                 GridParser.PrintGrid(DrawFurthestDestinationOnGrid(navigationDestinationSet, grid));
@@ -68,7 +72,7 @@ public class GridPathFromTester
         return gridCopy;
     }
 
-    private static bool VerifyDestinationSetData(NavigationDestinationSet navigationDestinationSet)
+    private static bool ValidateDestinationSet(NavigationDestinationSet navigationDestinationSet)
     {
         HashSet<NavigationDestination> validNavigationDestinations = new HashSet<NavigationDestination>(navigationDestinationSet.ValidDestinations);
         

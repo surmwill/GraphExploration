@@ -8,6 +8,16 @@ public static class GridPathToTester
 
     public static void TestPathsTo()
     {
+        TestPathingOnGrid();
+
+        Console.WriteLine("------------ Misc Tests ------------");
+        SerializedGrid outOfBoundsGrid = new SerializedGrid((1, 1), (0, 0), (99, 99), null, null);
+        NavigationInstructionSet? navigationInstructionSet = GridPathFinder.GetPathTo(outOfBoundsGrid);
+        Console.WriteLine($"Testing we receive null instructions if the target is out of bounds. Instructions are null: {navigationInstructionSet == null}");
+    }
+
+    private static void TestPathingOnGrid()
+    {
         List<char[,]> grids = GridParser.ParseGridsFromFile(TestGridsFileName);
 
         for (int i = 0; i < grids.Count; i++)
