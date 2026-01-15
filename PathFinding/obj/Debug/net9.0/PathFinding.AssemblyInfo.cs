@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PathFinding")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6246d0f2136ddfbd87749944b8c34e83cdb682fb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2173fbf4926a7ca1593fef6054b6f13917b8bcb6")]
 [assembly: System.Reflection.AssemblyProductAttribute("PathFinding")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PathFinding")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

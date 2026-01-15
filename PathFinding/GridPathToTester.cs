@@ -27,6 +27,9 @@ public static class GridPathToTester
             
             Console.WriteLine($"------------ Path To - Test Grid {i} ------------");
             
+            Console.WriteLine("Original grid");
+            GridParser.PrintGrid(grid);
+            
             NavigationInstructionSet? instructionSet = GridPathFinder.GetPathTo(serializedGrid);
             if (instructionSet != null)
             {

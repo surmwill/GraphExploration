@@ -24,6 +24,9 @@ public class GridPathFromTester
             
             Console.WriteLine($"------------ Path From - Max Steps ({maxNumSteps}) - Test Grid {i} ------------");
 
+            Console.WriteLine("Original grid");
+            GridParser.PrintGrid(grid);
+            
             NavigationDestinationSet navigationDestinationSet = GridPathFinder.GetPathsFrom(serializedGrid, maxNumSteps);
             if (navigationDestinationSet.CanMove)
             {
